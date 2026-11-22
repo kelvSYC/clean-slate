@@ -8,8 +8,8 @@
 // combined first (the "pair"), then the pair is combined with the third die.
 // So we try every order of the three dice (6 orders), every way to combine
 // the first two (4 operators), and every way to bring in the third
-// (4 operators, with the pair on the left or the right). That's a few hundred
-// cases, which a computer checks instantly, and no case can be missed.
+// (4 operators; for − and ÷ the pair can also go on the right). That's under
+// 150 cases, which a computer checks instantly, and no case can be missed.
 //
 // Along the way we remember *how* each number was made, so the game can show
 // it ("(6 + 2) × 3 = 24"). Many expressions make the same number, so we keep

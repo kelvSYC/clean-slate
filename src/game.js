@@ -204,20 +204,16 @@ function penalise(state, number) {
 }
 
 /**
- * How a turn ends: clear the dice and hand over to the next player, unless
- * the game is over (too many passes in a row, or the board is clear).
+ * How a turn ends: clear the dice, then either end the game (too many passes
+ * in a row, or the board is clear) or hand over to the next player.
  * @param {GameState} state
  * @returns {GameState}
  */
 function endTurn(state) {
   const boardClear = state.owner.every((o) => o !== null);
   const outOfPasses = state.passesInARow >= state.passLimit;
-  return {
-    ...state,
-    dice: null,
-    stage: boardClear || outOfPasses ? "over" : "roll",
-    current: (state.current + 1) % state.players.length,
-  };
+  if (boardClear || outOfPasses) return { ...state, dice: null, stage: "over" };
+  return { ...state, dice: null, stage: "roll", current: (state.current + 1) % state.players.length };
 }
 
 /** A copy of the players with one player's score changed. */

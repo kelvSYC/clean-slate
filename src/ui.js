@@ -56,6 +56,22 @@ function act(action) {
   if (next === state) return;
   state = next;
   render();
+  moveFocus();
+}
+
+/**
+ * After a move, put keyboard focus where the next action is, so a keyboard
+ * player never has to hunt for it (and is never left on a disabled button).
+ * The board comes before the panel in the page, so without this, Tab from
+ * Roll would lead away from the board.
+ */
+function moveFocus() {
+  if (!state) return;
+  if (state.stage === "roll") return $("roll").focus();
+  if (state.stage === "over") return $("new-game").focus();
+  // Choosing: the first number you can click, or Pass if there isn't one.
+  const first = cells.find((cell) => !cell.disabled);
+  (first ?? $("pass")).focus();
 }
 
 function startGame(/** @type {GameState} */ fresh) {

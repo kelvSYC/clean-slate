@@ -108,7 +108,9 @@ export function shuffledLayout(code) {
   const random = mulberry32(codeToSeed(code));
   const layout = classicLayout();
   // Fisher–Yates: walk backwards, swapping each cell with a random earlier
-  // one (or itself). Every ordering is equally likely.
+  // one (or itself). With a perfect random source every ordering would be
+  // equally likely; a 30-bit code can reach "only" about a billion of them,
+  // which is plenty for a game.
   for (let i = layout.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
     [layout[i], layout[j]] = [layout[j], layout[i]];

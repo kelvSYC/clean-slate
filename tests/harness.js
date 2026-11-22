@@ -7,7 +7,8 @@
 //
 // The same files run under two JavaScript engines:
 //   - JavaScriptCore (`jsc`), which ships with macOS. It has no `console`,
-//     only a global `print`, and `quit(n)` reports success in module mode.
+//     only a global `print`. And under `jsc -m`, `quit(n)` exits with 0
+//     whatever `n` is, so it can't report a failure.
 //   - Node, which has `console` but no `print`.
 // So we print with whichever exists, and signal failure the one way both
 // engines agree on: an uncaught exception, which exits with a non-zero code.

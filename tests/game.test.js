@@ -215,6 +215,12 @@ test("clearing the board ends the game at once", () => {
   assertEqual(after.passesInARow, 0);
 });
 
+test("the last mover stays current when the game ends", () => {
+  const over = play(start({ passLimit: 1, aid: false }), (s) => roll(s, [3, 2, 6]), (s) => pass(s));
+  assertEqual(over.stage, "over");
+  assertEqual(over.current, 0);
+});
+
 // ---- Solo and results ----------------------------------------------------
 
 test("solo: you keep the turn, and the pass limit still ends the game", () => {

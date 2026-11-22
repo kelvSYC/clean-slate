@@ -69,7 +69,7 @@ page:
 | File | What it teaches |
 |------|-----------------|
 | `src/dice.js` | Rolling dice |
-| `src/solver.js` | Finding every number three dice can make. It tries every case, which works because there are only 3 × 6 × 6 of them |
+| `src/solver.js` | Finding every number three dice can make. It tries every case: 6 orders of the dice × 4 operators for the first pair × 4 for the third die. That's under 150 cases, so nothing can be missed |
 | `src/board.js` | The 64 numbers, neighbours on a grid, and a shuffle that can be recreated from a code |
 | `src/game.js` | Turns, scoring and passes, as small functions that take the current state and return the next one |
 | `src/ui.js` | Drawing that state into the page and turning clicks into moves |
