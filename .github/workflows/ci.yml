@@ -1,0 +1,42 @@
+# Run every test on every push to main and every pull request.
+#
+# Nothing to install: the rules tests are plain JavaScript run by Node, and the
+# browser checks drive the Chrome that GitHub's Ubuntu runners already have.
+# If either ever needs a package manager, that's a change to the project's
+# "no dependencies" design, not just to this file.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # Floating LTS on purpose: the tests use only standard JavaScript, so a
+          # pin would only rot. A new LTS breaking us should show up here.
+          node-version: "lts/*"
+
+      # tests/run.sh prefers macOS's JavaScriptCore and falls back to Node.
+      - name: Rules tests
+        run: sh tests/run.sh
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Plays the real page headlessly: highlighting, penalties, keyboard focus,
+      # board codes, and that the credits are visible to a visitor.
+      - name: Browser checks
+        run: sh tests/ui/run.sh

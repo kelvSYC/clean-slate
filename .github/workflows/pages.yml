@@ -1,0 +1,105 @@
+# Publish the game to GitHub Pages (clean-slate.kelvsyc.com).
+#
+# DELIBERATELY manual (workflow_dispatch only), not on push. Publishing is a
+# decision, not a side effect of merging, and the first run of this workflow
+# IS the launch (see docs/GO-LIVE.md). A Pages site is publicly reachable even
+# while the repository is private.
+#
+# The preflight job is the launch checklist as code. Every check is a hard
+# failure with an explanation, never a warning.
+name: pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+
+      - name: Rules tests
+        run: sh tests/run.sh
+
+      - name: Browser checks (including visible credits)
+        run: sh tests/ui/run.sh
+
+      # Without a LICENSE the code is all-rights-reserved by default, which
+      # contradicts a project whose source is meant to be read and reused.
+      - name: Project LICENSE exists
+        run: |
+          [ -f LICENSE ] || { echo "::error::No LICENSE file; the code would be all-rights-reserved by default."; exit 1; }
+          echo "ok: LICENSE present"
+
+      # Attribution that lives only in ATTRIBUTION.md is invisible to a visitor.
+      # The browser checks test the rendered footer; this is the plain-text
+      # backstop, so the gate is readable here without opening the checks.
+      - name: Credits are on the page itself
+        run: |
+          missing=0
+          grep -q 'Digital Wipeout' index.html || { echo "::error::index.html never names Digital Wipeout."; missing=1; }
+          grep -q 'John Mauro' index.html || { echo "::error::index.html never names John Mauro."; missing=1; }
+          grep -qi 'unofficial\|not affiliated' index.html || { echo "::error::index.html never says it is unofficial."; missing=1; }
+          grep -q 'John Mauro' ATTRIBUTION.md || { echo "::error::ATTRIBUTION.md has lost its credit."; missing=1; }
+          [ "$missing" -eq 0 ] || exit 1
+          echo "ok: credits visible"
+
+      # The game loads nothing from anywhere else: no CDNs, no web fonts, no
+      # trackers. Links a visitor can click (like the footer's) are fine.
+      - name: Nothing is loaded from other sites
+        run: |
+          found="$( { grep -nE '<(script|link|img|iframe)[^>]*(src|href)="(https?:)?//' index.html || true
+                      grep -nE "(from|import\()[[:space:]]*[\"'](https?:)?//" src/*.js || true
+                      grep -nE 'url\([\"'"'"']?(https?:)?//' style.css || true; } )"
+          if [ -n "$found" ]; then
+            echo "::error::The page loads something from another site:"
+            echo "$found"
+            exit 1
+          fi
+          echo "ok: self-contained"
+
+  deploy:
+    needs: preflight
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      # Job-level permissions REPLACE the workflow-level set, so contents: read
+      # is restated here or checkout fails on a private repo ("Repository not
+      # found"). The custom domain is set in the repository's Pages settings;
+      # with an Actions deploy, a CNAME file in the artifact is ignored.
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      # Ship only the game: the page, its styles and its scripts. Tests, docs
+      # and design notes stay in the repository.
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/src
+          cp index.html style.css _site/
+          cp src/*.js _site/src/
+          echo "Deploying:"; (cd _site && find . -type f | sort)
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

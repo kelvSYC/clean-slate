@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!--
+  Browser checks for the page itself (tests/ui/run.sh runs this headlessly).
+
+  The rules are tested without a browser in tests/*.test.js. This page checks
+  what only a browser can: that ui.js draws the rules correctly, that buttons
+  are enabled at the right moments, that keyboard focus follows play, and that
+  a visitor can see who the game is a tribute to.
+
+  It loads the real game in an iframe and plays it by clicking. The dice are
+  random, so every run plays a slightly different game; the checks are written
+  to hold for any roll.
+-->
+<meta charset="utf-8">
+<title>Clean Slate UI checks</title>
+<iframe id="game" src="/" style="width:1000px;height:800px"></iframe>
+<pre id="out">RUNNING</pre>
+<script type="module">
+import { makeableNumbers } from "/src/solver.js";
+import { shuffledLayout } from "/src/board.js";
+
+// If anything throws, report it as a failure instead of hanging silently.
+const out = document.getElementById("out");
+const crashed = (error) => { out.textContent = `RESULTS\nFAIL the checks crashed (${error?.stack ?? error})\nEND`; };
+window.addEventListener("error", (event) => crashed(event.error));
+window.addEventListener("unhandledrejection", (event) => crashed(event.reason));
+
+const frame = document.getElementById("game");
+await new Promise((resolve) => frame.addEventListener("load", resolve));
+const d = frame.contentDocument;
+frame.contentWindow.confirm = () => true; // "Abandon this game?" → yes
+
+const $ = (id) => d.getElementById(id);
+const results = [];
+const check = (name, ok, detail = "") => results.push(`${ok ? "PASS" : "FAIL"} ${name}${ok ? "" : ` (${detail})`}`);
+
+const cells = () => [...d.querySelectorAll("#board .cell")];
+const dice = () => [...d.querySelectorAll("#dice .die")].map((e) => Number(e.textContent));
+const scores = () => [...d.querySelectorAll("#scores .score")].map((e) => Number(e.textContent));
+const typeInto = (el, value) => {
+  el.value = value;
+  el.dispatchEvent(new Event(el.tagName === "SELECT" ? "change" : "input", { bubbles: true }));
+};
+const unmakeableCell = () => cells().find((c) => !c.disabled && !makeableNumbers(dice()).has(Number(c.textContent)));
+const makeableOpenCells = () => cells().filter((c) => !c.classList.contains("wiped") && makeableNumbers(dice()).has(Number(c.textContent)));
+
+function startGame({ count = 3, names = [], board = "classic", code = "", limit = 6, aid = true }) {
+  if ($("setup").hidden) $("new-game").click();
+  typeInto($("player-count"), String(count));
+  d.querySelectorAll("#player-rows input").forEach((input, i) => typeInto(input, names[i] ?? ""));
+  d.querySelector(`input[name=board][value=${board}]`).checked = true;
+  $("board-code").value = code;
+  $("pass-limit").value = String(limit);
+  $("aid").checked = aid;
+  $("setup-form").requestSubmit();
+}
+
+// ---- Attribution: a visitor must see who this is a tribute to -------------
+const credits = d.querySelector("footer")?.textContent ?? "";
+check("credits name Digital Wipeout", credits.includes("Digital Wipeout"), credits);
+check("credits name John Mauro", credits.includes("John Mauro"), credits);
+check("credits say it's unofficial", /unofficial|not affiliated/i.test(credits), credits);
+
+// ---- A classic game with the move aid on -----------------------------------
+startGame({ names: ["Ada", "Brook", "Cy"] });
+check("game view shown", !$("game").hidden && cells().length === 64);
+check("focus starts on Roll", d.activeElement === $("roll"));
+check("board and Pass locked before rolling", cells().every((c) => c.disabled) && $("pass").disabled);
+check("dots and dice have roles", $("pass-dots").getAttribute("role") === "img" && $("dice").getAttribute("role") === "group");
+
+$("roll").click();
+const highlighted = cells().filter((c) => c.classList.contains("makeable"));
+check("highlights match the dice", highlighted.length === makeableOpenCells().length && highlighted.every((c) => !c.disabled), `dice ${dice()}`);
+check("other numbers are dimmed and disabled", cells().filter((c) => c.classList.contains("dim")).every((c) => c.disabled));
+check("focus moves into the board after Roll",
+  d.activeElement?.classList.contains("makeable") || d.activeElement === $("pass"), d.activeElement?.className);
+
+const target = highlighted[0];
+const number = Number(target.textContent);
+const expression = makeableNumbers(dice()).get(number);
+target.focus();
+target.click();
+target.click(); // a double click must not wipe twice
+check("wiped cell takes the player's colour", target.classList.contains("wiped") && target.style.getPropertyValue("--owner").includes("--player-1"));
+check("score goes up", scores()[0] >= 1, JSON.stringify(scores()));
+check("last move shows the expression", $("last").textContent.includes(expression), $("last").textContent);
+check("wiped cell's label names the player", target.ariaLabel === `${number}, wiped by Ada`, target.ariaLabel);
+check("turn passes to the next player", d.querySelector("#scores li.current")?.textContent.includes("Brook"), $("status").textContent);
+check("focus returns to Roll after a wipe", d.activeElement === $("roll"), d.activeElement?.className);
+check("a double click wipes once", cells().filter((c) => c.classList.contains("wiped")).length === 1);
+
+$("roll").click();
+const firstRoll = dice().join();
+$("roll").click();
+check("a double click rolls once", dice().join() === firstRoll && $("roll").disabled);
+
+// ---- Move aid off: illegal moves are penalised -----------------------------
+startGame({ count: 2, names: ["Ada", "Brook"], aid: false });
+$("roll").click();
+const wrong = unmakeableCell();
+wrong.click();
+check("wrong number costs a point", scores()[0] === -1 && !wrong.classList.contains("wiped"), JSON.stringify(scores()));
+check("wrong number uses up a pass", $("pass-dots").textContent === "●●●●●○", $("pass-dots").textContent);
+check("wrong number ends the turn", $("status").textContent.startsWith("Brook"), $("status").textContent);
+for (let tries = 0; tries < 20; tries++) {
+  $("roll").click();
+  if (makeableOpenCells().length) break;
+  $("pass").click();
+}
+check("Pass stays enabled even with a move (no hints)", !$("pass").disabled);
+const brookBefore = scores()[1];
+$("pass").click();
+check("passing with a move costs a point", scores()[1] === brookBefore - 1 && $("last").textContent.includes("move available"), $("last").textContent);
+
+// ---- Ending ----------------------------------------------------------------
+startGame({ count: 2, names: ["Ada", "Brook"], limit: 2, aid: false });
+for (let i = 0; i < 2; i++) { $("roll").click(); unmakeableCell().click(); }
+check("the pass limit ends the game", $("status").textContent.startsWith("Game over") && $("roll").disabled && $("pass").disabled, $("status").textContent);
+check("focus moves to New game at the end", d.activeElement === $("new-game"));
+
+startGame({ count: 1, limit: 1, aid: false });
+$("roll").click();
+unmakeableCell().click();
+check("solo result counts cleared cells", /cleared 0 of 64/.test($("status").textContent), $("status").textContent);
+
+// ---- Board codes -----------------------------------------------------------
+startGame({ count: 1, board: "shuffled", code: "k7q-2mx" });
+const layout = cells().map((c) => Number(c.textContent));
+check("typed code is tidied and shown", $("code").textContent.includes("K7Q-2MX"), $("code").textContent);
+check("the code decides the layout", JSON.stringify(layout) === JSON.stringify(shuffledLayout("K7Q2MX")));
+startGame({ count: 1, board: "shuffled", code: "K7Q2MX" });
+check("same code, same board", JSON.stringify(cells().map((c) => Number(c.textContent))) === JSON.stringify(layout));
+startGame({ count: 1, board: "shuffled", code: "XYZ" });
+check("a bad code is refused with a message", !$("setup").hidden && $("setup-error").textContent.includes("isn't valid"), $("setup-error").textContent);
+startGame({ count: 1, board: "shuffled", code: "" });
+check("a blank code makes a random board", /^Board code: [0-9A-Z]{3}-[0-9A-Z]{3}$/.test($("code").textContent), $("code").textContent);
+
+// ---- Names and colours -----------------------------------------------------
+startGame({ count: 2, names: ["<b>x</b>", ""] });
+const rows = [...d.querySelectorAll("#scores li")];
+check("names are shown as text, never markup", rows[0].textContent.includes("<b>x</b>") && !rows[0].querySelector("b"));
+check("a blank name gets a default", rows[1].textContent.includes("Player 2"));
+check("every cell is a real button", cells().every((c) => c.tagName === "BUTTON" && c.type === "button"));
+
+$("new-game").click();
+typeInto($("player-count"), "2");
+typeInto(d.querySelectorAll("#player-rows select")[1], "0");
+$("setup-form").requestSubmit();
+check("two players can't share a colour", $("setup-error").textContent.includes("different colour"), $("setup-error").textContent);
+
+out.textContent = "RESULTS\n" + results.join("\n") + "\nEND";
+</script>

@@ -62,6 +62,22 @@ the JavaScript engine built into the system. Elsewhere they run on Node 22 or
 later. The test runner itself is about 80 lines in `tests/harness.js`, so you
 can read how it works too.
 
+```sh
+sh tests/ui/run.sh
+```
+
+The browser checks play the real page in a headless Chrome or Chromium,
+covering highlighting, penalties, keyboard focus, board codes and the on-page
+credits. They need only `python3` and the browser. Set `CHROME=/path/to/browser`
+if it isn't found automatically.
+
+## Publishing
+
+The game is published to **https://clean-slate.kelvsyc.com/** by the `pages`
+workflow, which runs only when started by hand. Before it deploys, it checks:
+the tests, the browser checks, the licence, the visible credits, and that the
+page loads nothing from other sites. See [docs/GO-LIVE.md](docs/GO-LIVE.md).
+
 ## How it works
 
 Read the files in this order. Each has one job, and only the last one touches the
