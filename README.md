@@ -16,7 +16,7 @@ board**), and is written to be read: the source is the tutorial.
 - **The board** holds 64 numbers: 1–42, 44, 45, 48, 50, 54, 55, 60, 64, 66, 72,
   75, 80, 90, 96, 100, 108, 120, 125, 144, 150, 180 and 216. That's every
   positive whole number three dice can make, and nothing else.
-- **On your turn,** roll three dice. Use **all three, each exactly once**, with
+- **On your turn,** click Roll to throw three dice. Use **all three, each exactly once**, with
   any of + − × ÷ and brackets, to make a number that's still on the board.
   Division must come out whole. Click the number to wipe it out.
   - With 3, 2 and 6, you could wipe 4 (6 ÷ 3 + 2), 24 ((6 + 2) × 3), 36
@@ -24,7 +24,7 @@ board**), and is written to be read: the source is the tutorial.
 - **Scoring:** 1 point for the wipe, plus 1 for each neighbouring number
   (including diagonals) that's already wiped. The most you can score in one turn
   is 9.
-- **Can't make anything?** Pass. If a set number of passes happen in a row
+- **Can't make anything?** Pass. You may only pass when no move exists. If a set number of passes happen in a row
   (6 by default), the game ends. It also ends when the board is cleared.
 - **Highest score wins.** Playing solo? Try to clear all 64.
 
@@ -33,8 +33,8 @@ board**), and is written to be read: the source is the tutorial.
 - **Board:** *Classic* (in order, as in the original) or *Shuffled*. A shuffled
   board has a short code you can share, so friends can play the same layout.
 - **Move aid:** highlights the numbers you can make and blocks the rest. Turn it
-  off for the original rules, where an illegal click costs a point, ends your
-  turn, and counts as a pass.
+  off for the original rules. Then a wrong click, or passing when you had a move,
+  is an illegal move: it costs a point, ends your turn, and counts as a pass.
 - **Passes before the game ends:** 6 by default.
 - **Players:** 1 to 8, taking turns at one screen.
 
