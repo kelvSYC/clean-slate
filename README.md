@@ -50,6 +50,17 @@ python3 -m http.server
 
 Any static host (e.g. GitHub Pages) works the same way.
 
+## Running the tests
+
+```sh
+sh tests/run.sh
+```
+
+The rules tests need nothing installed. On macOS they run on JavaScriptCore,
+the JavaScript engine built into the system. Elsewhere they run on Node 22 or
+later. The test runner itself is about 80 lines in `tests/harness.js`, so you
+can read how it works too.
+
 ## How it works
 
 Read the files in this order. Each has one job, and only the last one touches the
