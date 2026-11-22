@@ -70,10 +70,21 @@ export function newGame({ players, boardCode, passLimit = DEFAULT_PASS_LIMIT, ai
     stage: "roll",
     dice: null,
     passesInARow: 0,
-    passLimit: Math.min(MAX_PASS_LIMIT, Math.max(MIN_PASS_LIMIT, Math.round(passLimit))),
+    passLimit: clampPassLimit(passLimit),
     aid,
     lastEvent: null,
   };
+}
+
+/**
+ * Keep the pass limit a whole number from 1 to 20. Anything that isn't a
+ * finite number (NaN, Infinity) falls back to the default, because a game
+ * whose limit can never be reached could never end on passes.
+ * @param {number} limit
+ */
+function clampPassLimit(limit) {
+  if (!Number.isFinite(limit)) return DEFAULT_PASS_LIMIT;
+  return Math.min(MAX_PASS_LIMIT, Math.max(MIN_PASS_LIMIT, Math.round(limit)));
 }
 
 // ---- The one legality check ---------------------------------------------

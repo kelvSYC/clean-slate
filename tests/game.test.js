@@ -46,6 +46,11 @@ test("pass limit is kept between 1 and 20", () => {
   assertEqual(start({ passLimit: 99 }).passLimit, 20);
 });
 
+test("a pass limit that isn't a number falls back to the default", () => {
+  assertEqual(start({ passLimit: NaN }).passLimit, 6);
+  assertEqual(start({ passLimit: Infinity }).passLimit, 6);
+});
+
 test("empty names get a default", () => {
   const s = newGame({ players: [{ name: "Ada", color: 0 }, { name: "  ", color: 1 }], boardCode: null });
   assertEqual(s.players[1].name, "Player 2");

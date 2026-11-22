@@ -20,7 +20,8 @@ board**), and is written to be read: the source is the tutorial.
   any of + − × ÷ and brackets, to make a number that's still on the board.
   Division must come out whole. Click the number to wipe it out.
   - With 3, 2 and 6, you could wipe 4 (6 ÷ 3 + 2), 24 ((6 + 2) × 3), 36
-    (3 × 2 × 6), 1 (6 − 2 − 3), and more.
+    (6 × 3 × 2), 1 (6 − 3 − 2), and more. These are the expressions the game
+    itself shows after each move.
 - **Scoring:** 1 point for the wipe, plus 1 for each neighbouring number
   (including diagonals) that's already wiped. The most you can score in one turn
   is 9.
