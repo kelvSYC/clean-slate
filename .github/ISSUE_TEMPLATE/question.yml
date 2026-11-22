@@ -1,0 +1,11 @@
+name: Question
+description: Ask how something in the code or the rules works. Questions are welcome; that's what this project is for.
+labels: [question]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: Mention the file and function if it's about the code, e.g. "src/solver.js, pickExpression".
+    validations:
+      required: true

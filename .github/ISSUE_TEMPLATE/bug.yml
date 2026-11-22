@@ -1,0 +1,33 @@
+name: Bug report
+description: Something in the game doesn't work the way the rules say it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! The rules are in the README's "How to play". If the
+        game disagrees with them, that's a bug.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the dice and the number you clicked, if relevant.
+      placeholder: "Rolled 3, 2, 6, clicked 24, and…"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Game setup
+      description: Players, Classic or Shuffled (with the board code), passes limit, move aid on/off.
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: "Safari 19 on macOS, Chrome on Android, …"

@@ -1,0 +1,23 @@
+name: Idea
+description: Suggest a feature, a rule variant, or a way to make the code easier to learn from.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why?
+      description: What would it make better for players, or for people reading the code?
+    validations:
+      required: true
+  - type: checkboxes
+    id: original
+    attributes:
+      label: Digital Wipeout
+      options:
+        - label: The original game had this
