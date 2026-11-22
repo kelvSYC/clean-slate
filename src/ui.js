@@ -196,12 +196,14 @@ function lastMoveText(/** @type {GameState} */ s) {
   if (!e) return "";
   const who = s.players[e.player].name;
   switch (e.kind) {
-    case "wipe": return `${who} wiped ${e.number} with ${e.expression} (+${e.points}).`;
+    // The points are written out in words: "(+1)" right after an expression
+    // reads as if it were part of the maths.
+    case "wipe": return `${who} wiped ${e.number} with ${e.expression}, scoring ${e.points} ${e.points === 1 ? "point" : "points"}.`;
     case "pass": return `${who} passed.`;
     case "illegal":
       return e.number === null
-        ? `${who} passed with a move available (−1).`
-        : `${who} picked ${e.number}, which those dice can't make (−1).`;
+        ? `${who} passed with a move available: −1 point.`
+        : `${who} picked ${e.number}, which those dice can't make: −1 point.`;
   }
 }
 
