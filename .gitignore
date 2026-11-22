@@ -1,0 +1,10 @@
+# Throwaway design mockups and brainstorming scratch space.
+.mockups/
+.superpowers/
+
+# Editors / tooling
+.idea/
+.vscode/
+
+# macOS cruft
+.DS_Store
