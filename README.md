@@ -8,7 +8,7 @@ It's a tribute to **Digital Wipeout** (John Mauro, ©2000), a Mac shareware
 classic. Clean Slate plays by the same rules, adds one twist (a **shuffled
 board**), and is written to be read: the source is the tutorial.
 
-> **Status:** designed, not yet built. See
+> **Status:** v1 playable. The design is in
 > [`docs/superpowers/specs/2026-11-21-clean-slate-design.md`](docs/superpowers/specs/2026-11-21-clean-slate-design.md).
 
 ## How to play

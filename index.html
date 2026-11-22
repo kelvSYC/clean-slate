@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clean Slate</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- The game logic lives in src/. Start reading at src/dice.js;
+       src/ui.js is the only file that touches this page. -->
+  <script type="module" src="src/ui.js"></script>
+</head>
+<body>
+  <main>
+    <!-- New-game form -->
+    <section id="setup" aria-labelledby="setup-title">
+      <h1 id="setup-title">Clean Slate</h1>
+      <p class="tagline">Roll three dice, make a number, wipe it off the slate.</p>
+
+      <form id="setup-form" novalidate>
+        <fieldset>
+          <legend>Players</legend>
+          <label>How many
+            <select id="player-count">
+              <option>1</option><option selected>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+            </select>
+          </label>
+          <ol id="player-rows"></ol>
+        </fieldset>
+
+        <fieldset>
+          <legend>Board</legend>
+          <label><input type="radio" name="board" value="classic" checked> Classic (in order)</label>
+          <label><input type="radio" name="board" value="shuffled"> Shuffled</label>
+          <label>Board code
+            <input id="board-code" type="text" autocomplete="off" spellcheck="false"
+                   placeholder="leave blank for a new one" maxlength="9">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Rules</legend>
+          <label>Game ends after
+            <input id="pass-limit" type="number" min="1" max="20" value="6"> passes in a row
+          </label>
+          <label><input id="aid" type="checkbox" checked> Move aid (highlight numbers you can make)</label>
+        </fieldset>
+
+        <p id="setup-error" class="error" role="alert"></p>
+        <button type="submit" class="primary">Start</button>
+      </form>
+    </section>
+
+    <!-- The game itself -->
+    <section id="game" hidden aria-label="Game">
+      <div id="board" class="board"></div>
+
+      <aside class="panel">
+        <h1>Clean Slate</h1>
+        <ol id="scores" class="scores" aria-label="Scores"></ol>
+        <p class="passes">Passes left <span id="pass-dots"></span></p>
+        <div id="dice" class="dice" aria-label="Dice"></div>
+        <div class="actions">
+          <button id="roll" type="button">Roll</button>
+          <button id="pass" type="button">Pass</button>
+        </div>
+        <p id="status" class="status" aria-live="polite"></p>
+        <p id="last" class="last"></p>
+        <p id="code" class="code"></p>
+        <button id="new-game" type="button" class="quiet">New game</button>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

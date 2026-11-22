@@ -30,7 +30,8 @@ export const BRACKET_EFFORT = 2;
 
 /**
  * One way of making a number.
- * @typedef {{ value: number, text: string, ops: [Operator, Operator], brackets: boolean }} Candidate
+ * `negativeStep` is true when the first step goes below zero, as in "4 − 6 + 4".
+ * @typedef {{ value: number, text: string, ops: [Operator, Operator], brackets: boolean, negativeStep: boolean }} Candidate
  */
 
 /**
@@ -84,7 +85,7 @@ function allCandidates(dice) {
           const brackets = side === "right" || ((inner === "+" || inner === "−") && (outer === "×" || outer === "÷"));
           const shownPair = brackets ? `(${pairText})` : pairText;
           const text = side === "left" ? `${shownPair} ${outer} ${z}` : `${z} ${outer} ${shownPair}`;
-          found.push({ value, text, ops: [inner, outer], brackets });
+          found.push({ value, text, ops: [inner, outer], brackets, negativeStep: pair < 0 });
         }
       }
     }
@@ -105,7 +106,8 @@ export function effort(candidate) {
  * Pick the easier of two ways to make the same number:
  *   1. lower effort;
  *   2. then no brackets;
- *   3. then larger digits first ("6 + 3 + 2" over "2 + 3 + 6"), which also
+ *   3. then no step below zero ("4 + 4 − 6" over "4 − 6 + 4");
+ *   4. then larger digits first ("6 + 3 + 2" over "2 + 3 + 6"), which also
  *      makes the choice deterministic.
  * @param {Candidate} a
  * @param {Candidate} b
@@ -114,6 +116,7 @@ export function effort(candidate) {
 export function pickExpression(a, b) {
   if (effort(a) !== effort(b)) return effort(a) < effort(b) ? a : b;
   if (a.brackets !== b.brackets) return a.brackets ? b : a;
+  if (a.negativeStep !== b.negativeStep) return a.negativeStep ? b : a;
   const digits = (/** @type {Candidate} */ c) => c.text.replace(/\D/g, "");
   return digits(a) >= digits(b) ? a : b;
 }

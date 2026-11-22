@@ -98,6 +98,11 @@ test("easiest expression wins", () => {
   ]));
 });
 
+test("prefers no negative steps on a tie", () => {
+  // "4 − 6 + 4" and "4 + 4 − 6" cost the same, but the first goes through −2.
+  assertEqual(makeableNumbers([4, 6, 4]).get(2), "4 + 4 − 6");
+});
+
 test("reads left to right", () => {
   for (const roll of allRolls()) {
     for (const [n, expr] of makeableNumbers(roll)) assertEqual(evaluateLeftToRight(expr), n, expr);
