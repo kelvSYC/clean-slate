@@ -2,6 +2,10 @@
 .mockups/
 .superpowers/
 
+# Superpowers design specs and plans are working documents, never committed
+# (a convention across all of our projects).
+docs/superpowers/
+
 # Editors / tooling
 .idea/
 .vscode/
