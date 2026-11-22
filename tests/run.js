@@ -4,5 +4,6 @@
 import { report } from "./harness.js";
 import "./dice.test.js";
 import "./solver.test.js";
+import "./board.test.js";
 
 report();
