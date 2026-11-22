@@ -73,9 +73,22 @@ if it isn't found automatically.
 ## Publishing
 
 The game is published to **https://clean-slate.kelvsyc.com/** by the `pages`
-workflow, which runs only when started by hand. Before it deploys, it checks:
-the tests, the browser checks, the licence, the visible credits, and that the
-page loads nothing from other sites. See [docs/GO-LIVE.md](docs/GO-LIVE.md).
+workflow (`.github/workflows/pages.yml`). It runs only when started by hand,
+because publishing is a decision, not a side effect of merging. Its preflight
+job is a launch checklist written as code. Each check is a hard failure with an
+explanation:
+
+| Check | Fails when |
+|---|---|
+| Rules tests | any test in `tests/*.test.js` fails |
+| Browser checks | any check in `tests/ui/checks.html` fails, including the credits being visible on the page |
+| Project LICENSE exists | publishing would leave the code all-rights-reserved |
+| Credits are on the page itself | `index.html` stops naming Digital Wipeout or John Mauro, or stops saying it's unofficial |
+| Nothing loaded from other sites | the page starts pulling scripts, styles, fonts or images from elsewhere |
+
+Only the game is published: `index.html`, `style.css` and `src/*.js`. The
+`ci` workflow runs the same tests and browser checks on every push and pull
+request.
 
 ## How it works
 

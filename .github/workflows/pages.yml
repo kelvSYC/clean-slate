@@ -1,9 +1,9 @@
 # Publish the game to GitHub Pages (clean-slate.kelvsyc.com).
 #
 # DELIBERATELY manual (workflow_dispatch only), not on push. Publishing is a
-# decision, not a side effect of merging, and the first run of this workflow
-# IS the launch (see docs/GO-LIVE.md). A Pages site is publicly reachable even
-# while the repository is private.
+# decision, not a side effect of merging. A Pages site is publicly reachable
+# even while its repository is private, so running this workflow is what
+# actually publishes the game.
 #
 # The preflight job is the launch checklist as code. Every check is a hard
 # failure with an explanation, never a warning.
